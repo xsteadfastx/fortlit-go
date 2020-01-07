@@ -14,7 +14,6 @@ steps:
     image: golang:1.13.5
     commands:
       - go build -o fortlit-$(uname -m)
-      - ls -la
     environment:
       GOARCH: amd64
       GOOS: linux
@@ -39,7 +38,6 @@ steps:
     image: golang:1.13.5
     commands:
       - go build -o fortlit-$(uname -m)
-      - ls -la
     environment:
       GOARCH: arm64
       GOOS: linux
@@ -66,7 +64,6 @@ steps:
     image: golang:1.13.5
     commands:
       - go build -o fortlit-$(uname -m)
-      - ls -la
     environment:
       GOARCH: arm
       GOOS: linux
