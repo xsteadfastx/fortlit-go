@@ -30,6 +30,8 @@ func get(qs map[string][]Quote, t string) Quote {
 		if len(qs[t]) != 1 {
 			rand.Seed(time.Now().Unix())
 			quote = qs[t][rand.Intn(len(qs[t]))]
+		} else {
+			quote = qs[t][0]
 		}
 	}
 

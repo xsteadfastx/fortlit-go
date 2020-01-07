@@ -26,3 +26,23 @@ func TestDecorate(t *testing.T) {
 		}
 	}
 }
+
+func TestGet(t *testing.T) {
+	tables := []struct {
+		m map[string][]Quote
+		q Quote
+	}{
+		{
+			map[string][]Quote{"00:00": {
+				Quote{"Max Mustermann", "Testbook", "This is a time!", "time"},
+			}},
+			Quote{"Max Mustermann", "Testbook", "This is a time!", "time"},
+		},
+	}
+	for _, table := range tables {
+		q := get(table.m, "00:00")
+		if q != table.q {
+			t.Errorf("quote \"%+v\" is not like \"%+v\"", q, table.q)
+		}
+	}
+}
