@@ -1,80 +1,26 @@
 ---
 kind: pipeline
 type: docker
-name: linux-amd64
-platform:
-  arch: amd64
-  os: linux
 steps:
   - name: test
-    image: golang:1.13.5
+    image: golang:1.13
     commands:
-      - go test ./...
+      - make test
+  - name: lint
+    image: golang:1.13
+    commands:
+      - make lint
   - name: build
-    image: golang:1.13.5
+    image: golang:1.13
     commands:
-      - go build -o fortlit-$(uname -m)
-    environment:
-      GOARCH: amd64
-      GOOS: linux
+      - go get -u github.com/mitchellh/gox
+      - make build
   - name: publish
     image: plugins/github-release
     settings:
       api_key:
         from_secret: github_token
       files:
-        - fortlit-*
+        - fortlit-go_*
     when:
       event: tag
----
-kind: pipeline
-type: docker
-name: linux-arm64
-platform:
-  arch: arm64
-  os: linux
-steps:
-  - name: build
-    image: golang:1.13.5
-    commands:
-      - go build -o fortlit-$(uname -m)
-    environment:
-      GOARCH: arm64
-      GOOS: linux
-  - name: publish
-    image: plugins/github-release
-    settings:
-      api_key:
-        from_secret: github_token
-      files:
-        - fortlit-*
-    when:
-      event: tag
-depends_on:
-  - linux-amd64
----
-kind: pipeline
-type: docker
-name: linux-arm
-platform:
-  arch: arm
-  os: linux
-steps:
-  - name: build
-    image: golang:1.13.5
-    commands:
-      - go build -o fortlit-$(uname -m)
-    environment:
-      GOARCH: arm
-      GOOS: linux
-  - name: publish
-    image: plugins/github-release
-    settings:
-      api_key:
-        from_secret: github_token
-      files:
-        - fortlit-*
-    when:
-      event: tag
-depends_on:
-  - linux-amd64

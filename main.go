@@ -2,14 +2,20 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math/rand"
-	"strings"
+	"os"
+	"regexp"
 	"time"
+
+	"github.com/xsteadfastx/fortlit-go/data"
 )
 
-//go:generate go-bindata litdata.json
-//go:generate go fmt bindata.go
+//go:generate go-bindata -pkg data -o ./data/bindata.go litdata.json
+//go:generate go fmt ./data/bindata.go
+
+var version = "development"
 
 const (
 	Purple = "\033[1;34m%s\033[0m"
@@ -27,6 +33,7 @@ func get(qs map[string][]Quote, t string) Quote {
 	quote := Quote{}
 
 	if _, exists := qs[t]; exists {
+		//nolint: gomnd
 		if len(qs[t]) != 1 {
 			rand.Seed(time.Now().Unix())
 			quote = qs[t][rand.Intn(len(qs[t]))]
@@ -36,11 +43,10 @@ func get(qs map[string][]Quote, t string) Quote {
 	}
 
 	return quote
-
 }
 
 func open(as string) []byte {
-	data, err := Asset(as)
+	data, err := data.Asset(as)
 
 	if err != nil {
 		panic(err)
@@ -50,20 +56,33 @@ func open(as string) []byte {
 }
 
 func (q *Quote) decorate() string {
-	text := strings.Replace(q.Text, q.Time, fmt.Sprintf(Purple, q.Time), -1)
+	m := regexp.MustCompile(fmt.Sprintf("(?i)(%s)", q.Time))
+	text := m.ReplaceAllString(q.Text, fmt.Sprintf(Purple, "$1"))
 
 	return fmt.Sprintf("\n%s\n\n    - %s, %s\n", text, q.Book, fmt.Sprintf(Teal, q.Author))
 }
 
 func main() {
+	fversion := flag.Bool("version", false, "Shows version.")
+
+	flag.Parse()
+
+	if *fversion {
+		fmt.Printf("Version: %s", version)
+		os.Exit(0)
+	}
+
 	data := open("litdata.json")
 	qs := make(map[string][]Quote)
+
 	if err := json.Unmarshal(data, &qs); err != nil {
 		panic(err)
 	}
+
 	now := time.Now()
 	t := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
 	quote := get(qs, t)
+
 	if quote != (Quote{}) {
 		fmt.Println(quote.decorate())
 	}

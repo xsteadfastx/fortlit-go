@@ -15,4 +15,4 @@
 # vendor/
 
 # Own stuff
-main
+fortlit-go_*
