@@ -1,89 +1,77 @@
+// nolint: exhaustivestruct, gochecknoglobals, gomnd
 package main
 
 import (
-	"encoding/json"
-	"flag"
 	"fmt"
 	"math/rand"
-	"os"
 	"regexp"
+	"strings"
 	"time"
 
-	"github.com/xsteadfastx/fortlit-go/data"
+	"github.com/pterm/pterm"
+	"go.xsfx.dev/fortlit/quotes"
 )
 
-//go:generate go-bindata -pkg data -o ./data/bindata.go litdata.json
-//go:generate go fmt ./data/bindata.go
+//go:generate go run tools/gen/gen.go
+//go:generate gofumpt -w quotes/quotes.go
 
-var version = "development"
+const lineWords = 8
 
-const (
-	Purple = "\033[1;34m%s\033[0m"
-	Teal   = "\033[1;36m%s\033[0m"
+var (
+	ColorAuthor = pterm.NewRGB(189, 147, 249)
+	ColorTime   = pterm.NewRGB(80, 250, 123)
+	ColorBook   = pterm.NewRGB(255, 121, 198)
 )
 
-type Quote struct {
-	Author string `json:"author"`
-	Book   string `json:"book"`
-	Text   string `json:"text"`
-	Time   string `json:"time"`
-}
+func getQuote(qs map[string][]quotes.Quote, t string) quotes.Quote {
+	var q quotes.Quote
 
-func get(qs map[string][]Quote, t string) Quote {
-	quote := Quote{}
-
-	if _, exists := qs[t]; exists {
-		//nolint: gomnd
+	if _, ok := qs[t]; ok {
 		if len(qs[t]) != 1 {
 			rand.Seed(time.Now().Unix())
-			quote = qs[t][rand.Intn(len(qs[t]))]
+			q = qs[t][rand.Intn(len(qs[t]))] // nolint: gosec
 		} else {
-			quote = qs[t][0]
+			q = qs[t][0]
 		}
 	}
 
-	return quote
+	return q
 }
 
-func open(as string) []byte {
-	data, err := data.Asset(as)
+func stringWrap(text string, limit int) string {
+	ts := strings.Fields(text)
+	rs := ""
 
-	if err != nil {
-		panic(err)
+	wc := 0
+	for _, i := range ts {
+		if wc < limit {
+			rs = rs + " " + i
+			wc++
+		} else {
+			rs = rs + " " + i + "\n"
+			wc = 0
+		}
 	}
 
-	return data
-}
-
-func (q *Quote) decorate() string {
-	m := regexp.MustCompile(fmt.Sprintf("(?i)(%s)", q.Time))
-	text := m.ReplaceAllString(q.Text, fmt.Sprintf(Purple, "$1"))
-
-	return fmt.Sprintf("\n%s\n\n    - %s, %s\n", text, q.Book, fmt.Sprintf(Teal, q.Author))
+	return rs
 }
 
 func main() {
-	fversion := flag.Bool("version", false, "Shows version.")
-
-	flag.Parse()
-
-	if *fversion {
-		fmt.Printf("Version: %s", version)
-		os.Exit(0)
-	}
-
-	data := open("litdata.json")
-	qs := make(map[string][]Quote)
-
-	if err := json.Unmarshal(data, &qs); err != nil {
-		panic(err)
-	}
-
 	now := time.Now()
 	t := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
-	quote := get(qs, t)
+	q := getQuote(quotes.FortData, t)
 
-	if quote != (Quote{}) {
-		fmt.Println(quote.decorate())
+	if q == (quotes.Quote{}) {
+		return
 	}
+
+	m := regexp.MustCompile(fmt.Sprintf("(?i)(%s)", q.Time))
+	text := m.ReplaceAllString(q.Text, ColorTime.Sprint("$1"))
+
+	pterm.DefaultCenter.Println(
+		pterm.DefaultBox.Sprint(
+			stringWrap(text, lineWords),
+		),
+	)
+	pterm.DefaultCenter.Println(fmt.Sprintf("✍️ %s - 📖 %s", ColorAuthor.Sprint(q.Author), ColorBook.Sprint(q.Book)))
 }
