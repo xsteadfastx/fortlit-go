@@ -70,7 +70,7 @@ func main() {
 	flag.Parse()
 
 	if flagVersion {
-		fmt.Printf("revive %s, commit %s, %s", version, commit, date)
+		fmt.Printf("fortlit %s, commit %s, %s", version, commit, date)
 
 		return
 	}
