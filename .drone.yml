@@ -34,9 +34,6 @@ steps:
         from_secret: github_token
     commands:
       - goreleaser release --rm-dist --parallelism=1
-    depends_on:
-      - submodules
-      - clean
     when:
       event:
         - tag
