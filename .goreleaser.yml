@@ -2,16 +2,16 @@
 project_name: fortlit
 
 builds:
-  - binary: revive
+  - binary: fortlit
     env:
       - CGO_ENABLED=0
     ldflags:
       - "-s"
       - "-w"
       - "-extldflags '-static'"
-      - "-X gitlab.com/wobcom/iot/revive/cmd.version={{.Version}}"
-      - "-X gitlab.com/wobcom/iot/revive/cmd.commit={{.ShortCommit}}"
-      - "-X gitlab.com/wobcom/iot/revive/cmd.date={{.Date}}"
+      - "-X main.version={{.Version}}"
+      - "-X main.commit={{.ShortCommit}}"
+      - "-X main.date={{.Date}}"
     goarch:
       - 386
       - amd64
