@@ -16,3 +16,4 @@
 
 # Own stuff
 dist/*
+.envrc

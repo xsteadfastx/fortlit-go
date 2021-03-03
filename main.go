@@ -1,7 +1,8 @@
-// nolint: exhaustivestruct, gochecknoglobals, gomnd
+// nolint: exhaustivestruct, gochecknoglobals, gomnd, forbidigo
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -15,7 +16,15 @@ import (
 //go:generate go run tools/gen/gen.go
 //go:generate gofumpt -w quotes/quotes.go
 
-const lineWords = 8
+var flagVersion bool
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
+const lineWords = 10
 
 var (
 	ColorAuthor = pterm.NewRGB(189, 147, 249)
@@ -57,6 +66,15 @@ func stringWrap(text string, limit int) string {
 }
 
 func main() {
+	flag.BoolVar(&flagVersion, "version", false, "version")
+	flag.Parse()
+
+	if flagVersion {
+		fmt.Printf("revive %s, commit %s, %s", version, commit, date)
+
+		return
+	}
+
 	now := time.Now()
 	t := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
 	q := getQuote(quotes.FortData, t)
@@ -68,10 +86,10 @@ func main() {
 	m := regexp.MustCompile(fmt.Sprintf("(?i)(%s)", q.Time))
 	text := m.ReplaceAllString(q.Text, ColorTime.Sprint("$1"))
 
-	pterm.DefaultCenter.Println(
-		pterm.DefaultBox.Sprint(
-			stringWrap(text, lineWords),
-		),
-	)
+	wrapText := stringWrap(text, lineWords)
+
+	fmt.Print("\n\n")
+
+	pterm.DefaultCenter.Println(wrapText)
 	pterm.DefaultCenter.Println(fmt.Sprintf("✍️ %s - 📖 %s", ColorAuthor.Sprint(q.Author), ColorBook.Sprint(q.Book)))
 }

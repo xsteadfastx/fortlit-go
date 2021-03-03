@@ -1,0 +1,65 @@
+---
+project_name: fortlit
+
+builds:
+  - binary: revive
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - "-s"
+      - "-w"
+      - "-extldflags '-static'"
+      - "-X gitlab.com/wobcom/iot/revive/cmd.version={{.Version}}"
+      - "-X gitlab.com/wobcom/iot/revive/cmd.commit={{.ShortCommit}}"
+      - "-X gitlab.com/wobcom/iot/revive/cmd.date={{.Date}}"
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+
+archives:
+  - replacements:
+      darwin: macos
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: xsteadfastx
+    name: fortlit-go
+
+nfpms:
+  - formats:
+      - apk
+      - deb
+      - rpm
+    replacements:
+      386: i386
+    homepage: https://git.xsfx.dev/xsteadfastx/fortlit
+    maintainer: Marvin Preuss <marvin@xsteadfastx.org>
+
+brews:
+  - name: fortlit
+    tap:
+      owner: xsteadfastx
+      name: homebrew-tap
+    commit_author:
+      name: Marvin Steadfast
+      email: marvin@xsteadfastx.org
+    homepage: https://git.xsfx.dev/xsteadfastx/fortlit
+    install: |
+      bin.install "fortlit"
+    test: |
+      system "#{bin}/fortlit -version"
