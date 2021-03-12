@@ -1,11 +1,18 @@
-fortlit-go
-==========
+# fortlit-go
 
-[![Build Status](https://cloud.drone.io/api/badges/xsteadfastx/fortlit-go/status.svg)](https://cloud.drone.io/xsteadfastx/fortlit-go)
+[![Build Status](https://ci.xsfx.dev/api/badges/xsteadfastx/fortlit/status.svg)](https://ci.xsfx.dev/xsteadfastx/fortlit)
 
-a little go rewrite for [fortlit](https://github.com/xsteadfastx/fortlit). a little first step into the go ocean.
+A little go rewrite for [fortlit](https://github.com/xsteadfastx/fortlit).
 
-![](./README.gif)
+A fortune like program that displays a quote from literature where the actual time is mentioned.
+
+This is heavily inspired from the [E-reader clock](https://www.instructables.com/id/Literary-Clock-Made-From-E-reader/) project from [Jaap Meijers](http://www.eerlijkemedia.nl/).
+
+![asciinema](./README.gif)
 
 ## Installation
-`curl -L https://github.com/xsteadfastx/fortlit-go/releases/download/v0.0.0/fortlit-$(uname -m) -o ~/bin/fortlit`
+
+### brew
+
+- `brew tap xsteadfastx/tap https://github.com/xsteadfastx/homebrew-tap`
+- `brew install fortlit`
